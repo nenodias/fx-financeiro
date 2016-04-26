@@ -6,17 +6,12 @@
 <?import org.tbee.javafx.scene.layout.fxml.MigPane?>
 <?import layouttests.migfxml.sample1.*?>
 
-<MigPane id="rootPane" fx:controller="br.edu.ite.financeiro.HelloController"
+<MigPane id="rootPane" fx:controller="br.edu.ite.financeiro.HomeController"
         styleClass="main-panel"
         layout="insets 20"
         cols="[label, pref!][grow, 50::]"
         rows=""
         xmlns:fx="http://javafx.com/fxml">
-
-    <Label text="Login:" /> <TextField fx:id="login" prefColumnCount="30" MigPane.cc="growx, wrap" />
-    <Label text="Password:" />	<PasswordField fx:id="password" prefColumnCount="30" MigPane.cc="growx, wrap" />
-
-    <Button text="Say Hello" onAction="#login" MigPane.cc="skip, gap :push, gaptop 15, wrap" />
 
     <Label fx:id="messageLabel" styleClass="hello-message" MigPane.cc="span, growx, gaptop 15" />
 

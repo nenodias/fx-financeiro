@@ -1,46 +1,63 @@
 package br.edu.ite.financeiro;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import org.apache.commons.lang.StringUtils;
+import javafx.stage.Stage;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class HelloController
-{
-    private static final Logger log = LoggerFactory.getLogger(HelloController.class);
+import br.edu.ite.financeiro.util.ControllerFactoryUtil;
+import br.edu.ite.financeiro.util.ControllerParameterImpl;
 
-    @FXML private TextField firstNameField;
-    @FXML private TextField lastNameField;
-    @FXML private Label messageLabel;
+public class HelloController extends ControllerParameterImpl{
+	
+	private static final long serialVersionUID = 8120582536070269377L;
 
-    public void sayHello() {
+	private static final Logger log = LoggerFactory.getLogger(HelloController.class);
 
-        String firstName = firstNameField.getText();
-        String lastName = lastNameField.getText();
-
-        StringBuilder builder = new StringBuilder();
-
-        if (!StringUtils.isEmpty(firstName)) {
-            builder.append(firstName);
-        }
-
-        if (!StringUtils.isEmpty(lastName)) {
-            if (builder.length() > 0) {
-                builder.append(" ");
-            }
-            builder.append(lastName);
-        }
-
-        if (builder.length() > 0) {
-            String name = builder.toString();
-            log.debug("Saying hello to " + name);
-            messageLabel.setText("Hello " + name);
-        } else {
-            log.debug("Neither first name nor last name was set, saying hello to anonymous person");
-            messageLabel.setText("Hello mysterious person");
-        }
-    }
+	@FXML
+	private TextField login;
+	
+	@FXML
+	private TextField password;
+	
+	@FXML
+	private Label messageLabel;
+	
+	@FXML
+	private void login(javafx.event.ActionEvent event) throws IOException {
+		try{
+			if (login.getText().equals("admin") && password.getText().equals("123")) {
+				String fxmlFile = File.separator+"fxml"+File.separator+"home.fxml";
+		        FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlFile));
+		        Map<String, Object> parametrosTela = new HashMap<String, Object>();
+		        parametrosTela.put("mensagem", "Olá mundo");
+		        loader.setControllerFactory(ControllerFactoryUtil.toController(parametrosTela));
+		        Parent rootNode = (Parent) loader.load();
+				Scene scene = new Scene(rootNode, 400, 200);
+				Stage appStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+				Button botao = (Button)event.getSource();
+				botao.getParent();
+				appStage.setScene(scene);
+				appStage.show();
+			} else {
+				messageLabel.setText("Password is incorrect. Please Try Again");
+			}
+		}catch (Exception e) {
+			log.error(e.getMessage(), e);
+		}
+	}
 
 }
