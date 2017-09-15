@@ -1,2 +1,3 @@
-# fx-financeiro
-Projeto Java 8 com FX
+A small Gradle Application for JavaFX 8 applications.
+
+For more information please access: fxapps.blogspot.com
