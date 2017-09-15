@@ -1,13 +1,13 @@
 package br.org.financeiro.view;
 
-import java.io.StringBufferInputStream;
-
 import org.apache.commons.lang3.StringUtils;
 
 import br.org.financeiro.App;
 import br.org.financeiro.model.Person;
 import br.org.financeiro.util.DateUtil;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -54,6 +54,21 @@ public class PersonOverviewController {
         showPersonDetails(null);
         
         personTable.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> showPersonDetails(newValue));
+    }
+    
+    @FXML
+    private void handleDeletePerson() {
+    	int selectedIndex = personTable.getSelectionModel().getSelectedIndex();
+        if (selectedIndex >= 0) {
+            personTable.getItems().remove(selectedIndex);
+        } else {
+        	Alert alert = new Alert(AlertType.WARNING);
+            alert.setTitle("Nenhuma seleção");
+            alert.setHeaderText("Nenhuma Pessoa Selecionada");
+            alert.setContentText("Por favor, selecione uma pessoa na tabela.");
+
+            alert.showAndWait();
+        }
     }
     
     public void setMainApp(App app) {
