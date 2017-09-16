@@ -1,5 +1,6 @@
 package br.org.financeiro;
 import br.org.financeiro.model.Person;
+import br.org.financeiro.view.PersonEditDialogController;
 import br.org.financeiro.view.PersonOverviewController;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
@@ -8,6 +9,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 public class App extends Application{
@@ -78,6 +80,33 @@ public class App extends Application{
 		}catch(Exception ex) {
 			ex.printStackTrace();
 		}
+	}
+	
+	public boolean showPersonEditDialog(Person person) {
+		try {
+			FXMLLoader loader = new FXMLLoader();
+			loader.setLocation(App.class.getResource("view/PersonEditDialog.fxml"));
+			AnchorPane personEditDialog = (AnchorPane) loader.load();
+			
+			Stage dialogStage = new Stage();
+			dialogStage.setTitle("Edit Person");
+			dialogStage.initModality(Modality.WINDOW_MODAL);	
+			dialogStage.initOwner(primaryStage);
+			
+			Scene scene = new Scene(personEditDialog);
+			dialogStage.setScene(scene);
+			
+			
+			PersonEditDialogController controller = (PersonEditDialogController)loader.getController();
+			controller.setDialogStage(dialogStage);
+			controller.setPerson(person);
+			
+			dialogStage.showAndWait();
+			return controller.isClicked();
+		}catch(Exception ex) {
+			ex.printStackTrace();
+		}
+		return false;
 	}
 
  }

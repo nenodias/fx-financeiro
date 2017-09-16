@@ -71,12 +71,38 @@ public class PersonOverviewController {
         }
     }
     
+    @FXML
+    private void handleNewPerson() {
+    	Person tempPerson = new Person();
+    	boolean okClicked = app.showPersonEditDialog(tempPerson);
+    	if(okClicked) {
+    		app.getPersonData().add(tempPerson);
+    	}
+    }
+    
+    @FXML
+    private void handleEditPerson() {
+    	Person selectedPerson = personTable.getSelectionModel().getSelectedItem();
+    	if(selectedPerson != null) {
+    		boolean okClicked = app.showPersonEditDialog(selectedPerson);
+        	if(okClicked) {
+        		showPersonDetails(selectedPerson);
+        	}
+    	}else {
+    		Alert alert = new Alert(AlertType.WARNING);
+    		alert.setTitle("Nenhuma seleção");
+    		alert.setHeaderText("Nenhuma pessoa selecionada");
+    		alert.setContentText("Por favor, selecione uma pessoa na tabela");
+    		alert.showAndWait();
+    	}
+    }
+    
     public void setMainApp(App app) {
         this.app = app;
         personTable.setItems(app.getPersonData());
     }
     
-    public void showPersonDetails(Person person) {
+    private void showPersonDetails(Person person) {
     	if(person != null) {
     		firstNameLabel.setText(person.getFirstName());
 		 	lastNameLabel.setText(person.getLastName());
