@@ -1,6 +1,11 @@
 package br.org.financeiro.view;
 
+import javax.persistence.EntityManager;
+import javax.persistence.EntityTransaction;
+
+import br.org.financeiro.App;
 import br.org.financeiro.model.Person;
+import br.org.financeiro.persistence.model.PersonEntity;
 import br.org.financeiro.util.DateUtil;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
@@ -28,6 +33,7 @@ public class PersonEditDialogController {
 	@FXML
 	private TextField birthdayField;
 	
+	private App app;
 	private Stage dialogStage;
 	private Person person;
 	private boolean onClicked = false;
@@ -47,6 +53,10 @@ public class PersonEditDialogController {
 		postalCodeField.setText(Integer.toString(person.getPostalCode()));
 		birthdayField.setText(DateUtil.format(person.getBirthday()));
 	}
+	
+	public void setApp(App app) {
+		this.app = app;
+	}
 
 	public void setDialogStage(Stage dialogStage) {
 		this.dialogStage = dialogStage;
@@ -65,6 +75,24 @@ public class PersonEditDialogController {
 			person.setCity(cityField.getText());
 			person.setPostalCode(Integer.valueOf(postalCodeField.getText()));
 			person.setBirthday(DateUtil.parse(birthdayField.getText()));
+			
+			final EntityManager em = this.app.getEntityManager();
+			final EntityTransaction t = em.getTransaction();
+			t.begin();
+			try {
+				PersonEntity entity = PersonEntity.from(person);
+				if(entity.getId() != null) {
+					em.merge(entity);
+				}else {
+					em.persist(entity);
+				}
+			}catch(Exception ex) {
+				t.rollback();
+				ex.printStackTrace();
+			}finally {
+				t.commit();
+				em.close();
+			}
 			
 			onClicked = true;
 			dialogStage.close();

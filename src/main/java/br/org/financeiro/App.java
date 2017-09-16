@@ -1,5 +1,13 @@
 package br.org.financeiro;
+import java.util.List;
+
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+import javax.persistence.Query;
+
 import br.org.financeiro.model.Person;
+import br.org.financeiro.persistence.model.PersonEntity;
 import br.org.financeiro.view.PersonEditDialogController;
 import br.org.financeiro.view.PersonOverviewController;
 import javafx.application.Application;
@@ -16,6 +24,7 @@ public class App extends Application{
 	
 	private Stage primaryStage;
     private BorderPane rootLayout;
+    private EntityManagerFactory factory;
     
     private ObservableList<Person> personData = FXCollections.observableArrayList();
     
@@ -23,17 +32,36 @@ public class App extends Application{
         return personData;
     }
     
+    private EntityManagerFactory getEntityManagerFactory(){
+    	return Persistence.createEntityManagerFactory("persistenciaPU");
+    }
+    	
+    public EntityManager getEntityManager(){
+    	if(factory != null && factory.isOpen()) {
+    		return factory.createEntityManager();
+    	}
+    	return null;
+    }
+    
     public App() {
-        // Add some sample data
-        personData.add(new Person("Hans", "Muster"));
-        personData.add(new Person("Ruth", "Mueller"));
-        personData.add(new Person("Heinz", "Kurz"));
-        personData.add(new Person("Cornelia", "Meier"));
-        personData.add(new Person("Werner", "Meyer"));
-        personData.add(new Person("Lydia", "Kunz"));
-        personData.add(new Person("Anna", "Best"));
-        personData.add(new Person("Stefan", "Meier"));
-        personData.add(new Person("Martin", "Mueller"));
+    	this.factory = getEntityManagerFactory();
+        final EntityManager em = getEntityManager();
+    	Query createQuery = em.createQuery("FROM PersonEntity");
+    	List<PersonEntity> resultList = createQuery.getResultList();
+    	resultList.forEach((person) -> personData.add( PersonEntity.to(person) ));
+    	em.close();
+    }
+    
+    @Override
+    public void stop() throws Exception {
+    	this.finalize();
+    	super.stop();
+    }
+    
+    public void finalize() {
+    	if(this.factory != null) {
+    		this.factory.close();
+    	}
     }
 
 	public static void main(String args[]){
@@ -99,6 +127,7 @@ public class App extends Application{
 			
 			PersonEditDialogController controller = (PersonEditDialogController)loader.getController();
 			controller.setDialogStage(dialogStage);
+			controller.setApp(this);
 			controller.setPerson(person);
 			
 			dialogStage.showAndWait();

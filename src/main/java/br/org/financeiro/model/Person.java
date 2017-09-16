@@ -3,14 +3,17 @@ package br.org.financeiro.model;
 import java.time.LocalDate;
 
 import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.LongProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleLongProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
 public class Person {
 
+	private final LongProperty id;
 	private final StringProperty firstName;
 	private final StringProperty lastName;
 	private final StringProperty street;
@@ -23,7 +26,8 @@ public class Person {
     }
 	
 	public Person(String firstName, String lastName) {
-        this.firstName = new SimpleStringProperty(firstName);
+		this.id = new SimpleLongProperty();
+		this.firstName = new SimpleStringProperty(firstName);
         this.lastName = new SimpleStringProperty(lastName);
 
         // Alguns dados de exemplo, apenas para testes.
@@ -31,6 +35,18 @@ public class Person {
         this.postalCode = new SimpleIntegerProperty(1234);
         this.city = new SimpleStringProperty("some city");
         this.birthday = new SimpleObjectProperty<LocalDate>(LocalDate.of(1999, 2, 21));
+    }
+	
+	public Long getId() {
+        return id.get();
+    }
+
+    public void setId(Long id) {
+        this.id.set(id);
+    }
+    
+    public LongProperty idProperty() {
+        return id;
     }
 	
 	public String getFirstName() {
