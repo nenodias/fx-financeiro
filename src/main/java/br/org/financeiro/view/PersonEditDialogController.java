@@ -1,11 +1,10 @@
 package br.org.financeiro.view;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityTransaction;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
-import br.org.financeiro.App;
 import br.org.financeiro.model.Person;
-import br.org.financeiro.persistence.model.PersonEntity;
+import br.org.financeiro.service.PersonService;
 import br.org.financeiro.util.DateUtil;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
@@ -13,6 +12,7 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
+@Singleton
 public class PersonEditDialogController {
 
 	@FXML
@@ -33,7 +33,9 @@ public class PersonEditDialogController {
 	@FXML
 	private TextField birthdayField;
 	
-	private App app;
+	@Inject
+	private PersonService personService;
+	
 	private Stage dialogStage;
 	private Person person;
 	private boolean onClicked = false;
@@ -52,11 +54,7 @@ public class PersonEditDialogController {
 		cityField.setText(person.getCity());
 		postalCodeField.setText(Integer.toString(person.getPostalCode()));
 		birthdayField.setText(DateUtil.format(person.getBirthday()));
-	}
-	
-	public void setApp(App app) {
-		this.app = app;
-	}
+	}	
 
 	public void setDialogStage(Stage dialogStage) {
 		this.dialogStage = dialogStage;
@@ -76,23 +74,7 @@ public class PersonEditDialogController {
 			person.setPostalCode(Integer.valueOf(postalCodeField.getText()));
 			person.setBirthday(DateUtil.parse(birthdayField.getText()));
 			
-			final EntityManager em = this.app.getEntityManager();
-			final EntityTransaction t = em.getTransaction();
-			t.begin();
-			try {
-				PersonEntity entity = PersonEntity.from(person);
-				if(entity.getId() != null) {
-					em.merge(entity);
-				}else {
-					em.persist(entity);
-				}
-			}catch(Exception ex) {
-				t.rollback();
-				ex.printStackTrace();
-			}finally {
-				t.commit();
-				em.close();
-			}
+			personService.save(person);
 			
 			onClicked = true;
 			dialogStage.close();

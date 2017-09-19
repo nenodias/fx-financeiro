@@ -2,8 +2,12 @@ package br.org.financeiro.view;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+
 import br.org.financeiro.App;
 import br.org.financeiro.model.Person;
+import br.org.financeiro.service.PersonService;
 import br.org.financeiro.util.DateUtil;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
@@ -12,9 +16,14 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 
+@Singleton
 public class PersonOverviewController {
 	
+	@Inject
 	private App app;
+	
+	@Inject
+	private PersonService personService;
 
     @FXML
     private TableView<Person> personTable;
@@ -48,6 +57,7 @@ public class PersonOverviewController {
     
     @FXML
     private void initialize() {
+    	personTable.setItems(app.getPersonData());
         firstNameColumn.setCellValueFactory(cellData -> cellData.getValue().firstNameProperty());
         lastNameColumn.setCellValueFactory(cellData -> cellData.getValue().lastNameProperty());
         
@@ -60,6 +70,11 @@ public class PersonOverviewController {
     private void handleDeletePerson() {
     	int selectedIndex = personTable.getSelectionModel().getSelectedIndex();
         if (selectedIndex >= 0) {
+        	Person person = personTable.getSelectionModel().getSelectedItem();
+        	if(person.getId() != null) {
+        		personService.delete(person.getId());
+        		person = null;
+        	}
             personTable.getItems().remove(selectedIndex);
         } else {
         	Alert alert = new Alert(AlertType.WARNING);
@@ -95,11 +110,6 @@ public class PersonOverviewController {
     		alert.setContentText("Por favor, selecione uma pessoa na tabela");
     		alert.showAndWait();
     	}
-    }
-    
-    public void setMainApp(App app) {
-        this.app = app;
-        personTable.setItems(app.getPersonData());
     }
     
     private void showPersonDetails(Person person) {

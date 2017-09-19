@@ -1,19 +1,15 @@
 package br.org.financeiro;
-import java.util.List;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
-import javax.persistence.Query;
-
+import br.org.financeiro.guice.GuiceFXMLLoader;
+import br.org.financeiro.guice.GuiceModule;
 import br.org.financeiro.model.Person;
-import br.org.financeiro.persistence.model.PersonEntity;
+import br.org.financeiro.service.PersonService;
 import br.org.financeiro.view.PersonEditDialogController;
-import br.org.financeiro.view.PersonOverviewController;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
@@ -24,46 +20,24 @@ public class App extends Application{
 	
 	private Stage primaryStage;
     private BorderPane rootLayout;
-    private EntityManagerFactory factory;
+    
+    private Injector injector;
+    
+    private GuiceModule module;
     
     private ObservableList<Person> personData = FXCollections.observableArrayList();
     
     public ObservableList<Person> getPersonData() {
         return personData;
     }
-    
-    private EntityManagerFactory getEntityManagerFactory(){
-    	return Persistence.createEntityManagerFactory("persistenciaPU");
-    }
-    	
-    public EntityManager getEntityManager(){
-    	if(factory != null && factory.isOpen()) {
-    		return factory.createEntityManager();
-    	}
-    	return null;
-    }
-    
+     
     public App() {
-    	this.factory = getEntityManagerFactory();
-        final EntityManager em = getEntityManager();
-    	Query createQuery = em.createQuery("FROM PersonEntity");
-    	List<PersonEntity> resultList = createQuery.getResultList();
-    	resultList.forEach((person) -> personData.add( PersonEntity.to(person) ));
-    	em.close();
+    	module = new GuiceModule(this);
+    	injector = Guice.createInjector(module);
+        final PersonService personService = injector.getInstance(PersonService.class);
+    	personData.addAll(personService.list());
     }
     
-    @Override
-    public void stop() throws Exception {
-    	this.finalize();
-    	super.stop();
-    }
-    
-    public void finalize() {
-    	if(this.factory != null) {
-    		this.factory.close();
-    	}
-    }
-
 	public static void main(String args[]){
 		launch(args);
 	}
@@ -80,10 +54,17 @@ public class App extends Application{
 	     initRootLayout();
 	     showPersonOverview();
 	}
+	@Override
+	public void stop() throws Exception {
+		this.module.stop();
+		this.module = null;
+		this.injector = null;
+		super.stop();
+	}
 
 	private void initRootLayout() {
 		try {
-			FXMLLoader loader = new FXMLLoader();
+			GuiceFXMLLoader loader = new GuiceFXMLLoader(injector);
 			loader.setLocation(App.class.getResource("view/RootLayout.fxml"));
 			rootLayout = (BorderPane) loader.load();
 			
@@ -97,14 +78,11 @@ public class App extends Application{
 	
 	private void showPersonOverview() {
 		try {
-			FXMLLoader loader = new FXMLLoader();
+			GuiceFXMLLoader loader = new GuiceFXMLLoader(injector);
 			loader.setLocation(App.class.getResource("view/PersonOverview.fxml"));
 			AnchorPane personOverview = (AnchorPane) loader.load();			
 			
 			rootLayout.setCenter(personOverview);
-			
-			PersonOverviewController controller = loader.getController();
-	        controller.setMainApp(this);
 		}catch(Exception ex) {
 			ex.printStackTrace();
 		}
@@ -112,7 +90,7 @@ public class App extends Application{
 	
 	public boolean showPersonEditDialog(Person person) {
 		try {
-			FXMLLoader loader = new FXMLLoader();
+			GuiceFXMLLoader loader = new GuiceFXMLLoader(injector);
 			loader.setLocation(App.class.getResource("view/PersonEditDialog.fxml"));
 			AnchorPane personEditDialog = (AnchorPane) loader.load();
 			
@@ -127,7 +105,6 @@ public class App extends Application{
 			
 			PersonEditDialogController controller = (PersonEditDialogController)loader.getController();
 			controller.setDialogStage(dialogStage);
-			controller.setApp(this);
 			controller.setPerson(person);
 			
 			dialogStage.showAndWait();
