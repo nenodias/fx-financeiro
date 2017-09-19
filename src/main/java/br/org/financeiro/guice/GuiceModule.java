@@ -44,7 +44,9 @@ public class GuiceModule extends AbstractModule {
 	@Override
 	protected void finalize() throws Throwable {
 		app = null;
-		factory.close();
+		if(factory != null && factory.isOpen()) {
+			factory.close();
+		}
 		super.finalize();
 	}
 
