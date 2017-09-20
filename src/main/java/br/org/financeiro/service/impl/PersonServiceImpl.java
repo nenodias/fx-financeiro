@@ -3,9 +3,8 @@ package br.org.financeiro.service.impl;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityTransaction;
-import javax.persistence.Query;
+import org.hibernate.Query;
+import org.hibernate.Session;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -18,55 +17,47 @@ import br.org.financeiro.service.PersonService;
 public class PersonServiceImpl implements PersonService {
 
 	@Inject
-	private EntityManager entityManager;
+	private Session session;
 	
 	@Override
 	public void save(Person person) {
-		final EntityTransaction t = entityManager.getTransaction();
-		t.begin();
 		try {
 			PersonEntity entity = PersonEntity.from(person);
-			if(entity.getId() != null) {
-				entityManager.merge(entity);
-			}else {
-				entityManager.persist(entity);
-			}
+			session.saveOrUpdate(entity);
+			session.evict(entity);
 		}catch(Exception ex) {
-			t.rollback();
 			ex.printStackTrace();
-		}finally {
-			t.commit();
 		}
 	}
 	
 	@Override
 	public List<Person> list(){
-		Query createQuery = entityManager.createQuery("FROM PersonEntity");
+		Query createQuery = session.createQuery("FROM PersonEntity");
     	@SuppressWarnings("unchecked")
-		List<PersonEntity> resultList = (List<PersonEntity>) createQuery.getResultList();
+		List<PersonEntity> resultList = (List<PersonEntity>) createQuery.list();
     	List<Person> personData = new ArrayList<>();
-    	resultList.forEach((person) -> personData.add( PersonEntity.to(person) ));
+    	resultList.forEach((person) -> {
+    		personData.add( PersonEntity.to(person) );
+    		session.evict(person);
+		});
     	return personData;
 	}
 	
 	
 	public PersonEntity findById(Long id) {
-		PersonEntity entity = entityManager.find(PersonEntity.class, id);
+		PersonEntity entity = (PersonEntity) session.get(PersonEntity.class, id);
+		session.evict(entity);
 		return entity;
 	}
 	
 	@Override
 	public void delete(Long id) {
-		final EntityTransaction t = entityManager.getTransaction();
-		t.begin();
 		try {
 			PersonEntity entity = findById(id);
-			entityManager.remove(entity);
+			session.delete(entity);
+			session.evict(entity);
 		}catch(Exception ex) {
-			t.rollback();
 			ex.printStackTrace();
-		}finally {
-			t.commit();
 		}
 	}
 }
