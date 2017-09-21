@@ -3,9 +3,9 @@ package br.org.financeiro.view;
 import org.apache.commons.lang3.StringUtils;
 
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
 
 import br.org.financeiro.App;
+import br.org.financeiro.guice.GuiceInit;
 import br.org.financeiro.model.Person;
 import br.org.financeiro.service.PersonService;
 import br.org.financeiro.util.DateUtil;
@@ -16,8 +16,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 
-@Singleton
-public class PersonOverviewController {
+public class PersonOverviewController implements GuiceInit{
 	
 	@Inject
 	private App app;
@@ -54,18 +53,7 @@ public class PersonOverviewController {
 	
     public PersonOverviewController() {
     }
-    
-    @FXML
-    private void initialize() {
-    	personTable.setItems(app.getPersonData());
-        firstNameColumn.setCellValueFactory(cellData -> cellData.getValue().firstNameProperty());
-        lastNameColumn.setCellValueFactory(cellData -> cellData.getValue().lastNameProperty());
-        
-        showPersonDetails(null);
-        
-        personTable.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> showPersonDetails(newValue));
-    }
-    
+       
     @FXML
     private void handleDeletePerson() {
     	int selectedIndex = personTable.getSelectionModel().getSelectedIndex();
@@ -129,4 +117,15 @@ public class PersonOverviewController {
 	    	birthdayLabel.setText(StringUtils.EMPTY);
     	}
     }
+
+	@Override
+	public void init() {
+		personTable.setItems(app.getPersonData());
+        firstNameColumn.setCellValueFactory(cellData -> cellData.getValue().firstNameProperty());
+        lastNameColumn.setCellValueFactory(cellData -> cellData.getValue().lastNameProperty());
+        
+        showPersonDetails(null);
+        
+        personTable.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> showPersonDetails(newValue));
+	}
 }

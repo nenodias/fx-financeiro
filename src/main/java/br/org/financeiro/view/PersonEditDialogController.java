@@ -1,8 +1,8 @@
 package br.org.financeiro.view;
 
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
 
+import br.org.financeiro.guice.GuiceInit;
 import br.org.financeiro.model.Person;
 import br.org.financeiro.service.PersonService;
 import br.org.financeiro.util.DateUtil;
@@ -12,8 +12,7 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
-@Singleton
-public class PersonEditDialogController {
+public class PersonEditDialogController implements GuiceInit{
 
 	@FXML
 	private TextField firstNameField;
@@ -39,11 +38,6 @@ public class PersonEditDialogController {
 	private Stage dialogStage;
 	private Person person;
 	private boolean onClicked = false;
-	
-	@FXML
-	public void initialize() {
-		
-	}
 	
 	public void setPerson(Person person) {
 		this.person = person;
@@ -134,5 +128,10 @@ public class PersonEditDialogController {
 
 	            return false;
 	        }
+	}
+
+	@Override
+	public void init() {
+		
 	}
 }

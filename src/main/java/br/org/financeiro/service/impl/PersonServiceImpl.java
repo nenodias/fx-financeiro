@@ -24,6 +24,7 @@ public class PersonServiceImpl implements PersonService {
 		try {
 			PersonEntity entity = PersonEntity.from(person);
 			session.saveOrUpdate(entity);
+			session.flush();
 			session.evict(entity);
 		}catch(Exception ex) {
 			ex.printStackTrace();

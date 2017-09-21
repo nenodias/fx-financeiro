@@ -1,23 +1,31 @@
 package br.org.financeiro.guice;
 
-import javax.inject.Inject;
+import java.io.IOException;
 
 import com.google.inject.Injector;
 
 import javafx.fxml.FXMLLoader;
-import javafx.util.Callback;
 
-public final class GuiceFXMLLoader extends FXMLLoader {
+public class GuiceFXMLLoader extends FXMLLoader {
 
-	@Inject
-	public GuiceFXMLLoader(final Injector injector) {
+	private Injector injector;
+
+	public GuiceFXMLLoader(Injector injector) {
 		super();
-		this.setControllerFactory(new Callback<Class<?>, Object>() {
-			@Override
-			public Object call(Class<?> param) {
-				return injector.getInstance(param);
-			}
-		});
+		this.injector = injector;
 	}
-
+	
+	@Override
+	public <T> T load() throws IOException {
+		T retorno = super.load();
+		Object controller = super.getController();
+		if(controller != null) {
+			injector.injectMembers(controller);
+			if(GuiceInit.class.isAssignableFrom(controller.getClass())) {
+				((GuiceInit)controller).init();
+			}
+		}
+		return retorno;
+	}
+	
 }
