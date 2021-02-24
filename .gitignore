@@ -2,6 +2,7 @@
 .project
 .gradle
 .settings
+.idea
 bin/
 build/
 target/
