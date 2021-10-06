@@ -13,7 +13,7 @@
                <children>
                   <TableView fx:id="personTable" layoutX="-11.0" layoutY="56.0" prefHeight="298.0" prefWidth="174.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                     <columns>
-                      <TableColumn fx:id="firstNameColumn" prefWidth="75.0" text="Fiirst name" />
+                      <TableColumn fx:id="firstNameColumn" prefWidth="75.0" text="First name" />
                       <TableColumn fx:id="lastNameColumn" prefWidth="75.0" text="Last Name" />
                     </columns>
                      <columnResizePolicy>
